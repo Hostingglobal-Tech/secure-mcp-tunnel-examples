@@ -1,0 +1,12 @@
+[package]
+name = "secure-mcp-tunnel-examples"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+publish = false
+
+[dependencies]
+rmcp = { version = "3.12.0", default-features = false, features = ["macros", "server", "transport-io"] }
+schemars = "1"
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["macros", "rt"] }

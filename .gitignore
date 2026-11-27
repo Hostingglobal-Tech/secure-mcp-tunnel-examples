@@ -1,0 +1,9 @@
+/target/
+/.env
+/.env.*
+/*.yaml
+/*.yml
+/*.pem
+/*.key
+/*.pfx
+/*.p12
