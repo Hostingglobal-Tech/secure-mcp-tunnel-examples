@@ -1,14 +1,16 @@
 # Secure MCP Tunnel 웨비나 예제
 
-![ChatGPT의 도구 요청은 OpenAI 터널을 거쳐 사내 PC로 갑니다. 도구 결과는 반대 방향으로 돌아옵니다. PC가 먼저 HTTPS 연결을 시작합니다.](assets/secure-mcp-tunnel-cover.png)
+![Dots(닷츠)의 요청이 등록된 플러그인과 Secure MCP Tunnel을 거쳐 사내 PC의 MCP 도구에 도달합니다. 실행 결과는 Dots로 돌아옵니다. PC가 먼저 HTTPS 연결을 시작합니다.](assets/secure-mcp-tunnel-cover.png)
 
-**ChatGPT에서 사내 PC의 도구를 호출하는 흐름을 가상 데이터로 실습합니다.**
+**Dots(닷츠)에 대화로 요청하면, 등록된 플러그인이 Secure MCP Tunnel을 통해 사내 PC의 MCP 도구를 호출합니다.**
 
-[로컬 실습](#api-키-없이-로컬에서-호출) · [ChatGPT 연결](#chatgpt에서-개인-시연-터널로-호출) · [자주 묻는 질문](#자주-묻는-질문)
+이 저장소의 Rust 예제 2개로 같은 흐름을 실습할 수 있습니다. 예제는 가상 서비스 상태와 가상 PC 화면을 반환합니다.
+
+[로컬 실습](#api-키-없이-로컬에서-호출) · [터널 설정](#chatgpt에서-개인-시연-터널로-호출) · [Dots에서 첫 요청](#dots에서-첫-요청-보내기) · [자주 묻는 질문](#자주-묻는-질문)
 
 ## 어떤 예제인가요?
 
-MCP는 ChatGPT가 도구의 이름, 입력 형식, 실행 결과를 주고받는 규약입니다. 이 예제의 MCP 서버는 PC에서 실행하는 Rust 프로그램입니다. Secure MCP Tunnel은 ChatGPT의 요청과 도구 결과를 전달합니다.
+MCP는 Dots와 같은 클라이언트가 도구의 이름, 입력 형식, 실행 결과를 주고받는 규약입니다. 이 예제의 MCP 서버는 사내 PC에서 실행하는 Rust 프로그램입니다. Secure MCP Tunnel은 Dots의 요청과 PC의 실행 결과를 전달합니다.
 
 | 예제 | MCP 도구 | 시연 입력 | 예상 결과 |
 | --- | --- | --- | --- |
@@ -20,8 +22,8 @@ MCP는 ChatGPT가 도구의 이름, 입력 형식, 실행 결과를 주고받는
 ### 호출이 오가는 순서
 
 1. PC에서 실행 중인 `tunnel-client`가 OpenAI 터널 서비스에 HTTPS 연결을 시작합니다.
-2. ChatGPT가 연결된 플러그인에서 도구를 호출하면 `tunnel-client`가 요청을 받습니다.
-3. PC의 Rust 프로그램이 요청을 처리합니다. `tunnel-client`가 결과를 OpenAI에 전달합니다.
+2. 사용자가 Dots에 요청하면 등록된 플러그인이 MCP 도구를 호출합니다. 사내 PC의 `tunnel-client`가 터널에서 요청을 받아 PC의 Rust 프로그램에 전달합니다.
+3. PC의 Rust 프로그램이 도구를 실행합니다. 실행 결과는 같은 터널을 거쳐 Dots로 돌아옵니다.
 
 외부에서 PC로 들어오는 포트를 열 필요가 없습니다. 아래 로컬 실습은 같은 PC 안에서 터널을 모의 실행합니다.
 
@@ -102,9 +104,15 @@ tunnel-client doctor --profile webinar-services --explain
 tunnel-client run --profile webinar-services --mcp.stdio-send-initialized-notification
 ```
 
-[ChatGPT Plugins](https://chatgpt.com/plugins)에서 사용자 지정 MCP 서버를 추가하라. 연결 방식은 **Tunnel**을 선택하라. 위에서 사용한 터널을 연결하라. 아래 문장으로 도구가 실제로 응답하는지 확인하라.
+[ChatGPT Plugins](https://chatgpt.com/plugins)에서 사용자 지정 MCP 서버를 추가하라. 연결 방식은 **Tunnel**을 선택하라. 위에서 사용한 터널을 연결하라.
+
+### Dots에서 첫 요청 보내기
+
+시연 플러그인을 사용할 수 있는 워크스페이스에서 Dots를 열어라. 대화에 시연 플러그인을 추가하라. 아래 문장으로 사내 PC의 예제 도구를 호출하라.
 
 > get_demo_service_status 도구로 demo_queue의 상태를 조회해 줘.
+
+도구 호출 결과에 `demo_queue: degraded (synthetic backlog)`가 있는지 확인하라. 이 값은 PC에서 실행한 Rust 도구가 반환합니다.
 
 PC 화면 예제에는 별도 시연 터널을 써라. 프로필 이름을 `webinar-workstation`으로 바꿔라. 실행 파일을 `workstation_view`로 바꿔라. 두 프로필을 동시에 실행하려면 두 번째 프로필의 init 명령에 `--health-listen-addr 127.0.0.1:8081`을 추가하라.
 
@@ -126,9 +134,13 @@ PC 안의 `tunnel-client`가 외부로 HTTPS 연결을 시작합니다. PC에 �
 
 두 예제가 가상 데이터만 반환합니다. 서비스 예제는 `demo_api`와 `demo_queue`를 받습니다. 화면 예제는 Rust 코드에 정의한 글자 네 줄을 반환합니다.
 
-### 터널이 연결되면 ChatGPT가 PC 어디에나 접근할 수 있나요?
+### Dots에서 사내 PC에 도달했는지 어떻게 확인하나요?
 
-ChatGPT의 도구 호출은 플러그인이 등록한 MCP 서버로 전달됩니다. 도구가 어떤 파일이나 서비스에 접근할지는 서버 코드와 그 프로그램의 실행 권한이 정합니다. 실제 업무에 적용할 때는 필요한 도구와 데이터만 연결하라.
+Dots에서 시연 플러그인의 읽기 전용 도구를 호출하라. 도구 호출 기록에서 도구 이름과 PC가 반환한 값을 확인하라. `get_demo_service_status`의 예상 값은 `demo_queue: degraded (synthetic backlog)`입니다. `tunnel-client`의 상태는 연결을 점검할 때 사용하라.
+
+### Dots가 사내 PC에서 어디까지 접근할 수 있나요?
+
+Dots는 등록된 플러그인이 제공하는 MCP 도구를 호출합니다. 도구가 어떤 파일이나 서비스에 접근할지는 서버 코드와 그 프로그램의 실행 권한이 정합니다. 실제 업무에 적용할 때는 필요한 도구와 데이터만 연결하라.
 
 ### 연결은 됐는데 도구 목록이 비어 있으면 어떻게 하나요?
 
