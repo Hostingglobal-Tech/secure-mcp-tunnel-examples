@@ -1,5 +1,7 @@
 # Secure MCP Tunnel 웨비나 예제
 
+![ChatGPT의 도구 요청은 OpenAI 터널을 거쳐 사내 PC로 갑니다. 도구 결과는 반대 방향으로 돌아옵니다. PC가 먼저 HTTPS 연결을 시작합니다.](assets/secure-mcp-tunnel-cover.png)
+
 **ChatGPT에서 사내 PC의 도구를 호출하는 흐름을 가상 데이터로 실습합니다.**
 
 [로컬 실습](#api-키-없이-로컬에서-호출) · [ChatGPT 연결](#chatgpt에서-개인-시연-터널로-호출) · [자주 묻는 질문](#자주-묻는-질문)
